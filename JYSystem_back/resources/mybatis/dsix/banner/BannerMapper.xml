@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.banner.BannerDAO" >
+
+  <resultMap id="base" type="BaseBanner" >
+    <result column="ids" property="ids" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <select id="findByPage" resultMap="base" parameterType="BaseBanner" >
+    select ids, picurl, newsid, bannerorder, createTime,title,bannerkey
+    from jy_base_banner t
+    where 1=1 
+    <if test="param.title!= null and param.title!=''">
+        	AND (
+        	t.title LIKE CONCAT('%',#{param.title},'%')    
+        	)
+    </if>
+    order by bannerorder desc 
+  </select>
+  
+  <select id="find" resultMap="base" parameterType="BaseBanner">
+    select ids, picurl, newsid, bannerorder, createTime,title,bannerkey
+    from jy_base_banner t
+    where 1=1
+       <if test="ids != null and ids!=''">
+        	and t.ids=#{ids}
+       </if> 
+    </select>  
+    
+  
+  <delete id="delete" parameterType="BaseBanner" >
+    delete from jy_base_banner where ids = #{ids}
+  </delete>
+  
+  <insert id="insert" parameterType="BaseBanner" >
+    insert into jy_base_banner (ids, picurl, newsid, bannerorder, createTime,title,bannerkey)
+    values (#{ids}, #{picurl}, #{newsid}, #{bannerorder}, #{createTime},#{title},#{bannerkey})
+  </insert>
+  
+  <update id="update" parameterType="BaseBanner" >
+    update jy_base_banner set
+    <if test="picurl != null">
+         picurl = #{picurl},
+      </if>
+      <if test="newsid != null">
+        newsid = #{newsid},
+      </if>
+      <if test="bannerorder != null">
+        bannerorder = #{bannerorder},
+      </if>
+      <if test="createTime != null">
+       createTime = #{createTime},
+      </if>
+      <if test="title != null">
+        title = #{title},
+      </if>
+       <if test="bannerkey != null">
+        bannerkey = #{bannerkey},
+      </if>
+      ids=#{ids} 
+    where ids = #{ids}
+  </update>
+</mapper>

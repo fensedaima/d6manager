@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.speedabout.SpeedaboutDAO" >
+  <resultMap id="base" type="Basespeedabout">
+    <result column="ids" property="ids" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <select id="findByPage" resultMap="base" parameterType="Basespeedabout" >
+    select 
+    ids, speednumber, speedstate, userid, speedorder, speedhomepage,speedcontent,speedtype,handspeedwhere,speedwhere,loginName,
+    name,picUrl,xingquaihao,zhiye,speedcity,nianling,shengao,tizhong,xingzuo,gexingqianming,coverurl,speedmakesure,beginTime,endTime,speedpics
+    from jy_base_speedabout inner join jy_base_account  on jy_base_speedabout.userid=jy_base_account.id
+    where 1=1
+    <if test="param.keyWord!= null and param.keyWord!=null">
+        	AND (
+        	speednumber LIKE CONCAT('%',#{param.keyWord},'%')    
+        	)
+    </if>
+    <if test="param.speedstate!= null and param.speedstate!=''">
+        	AND speedstate=#{param.speedstate}
+    </if>
+    <if test="param.beginTime != null and param.beginTime!=''  ">
+        	  <![CDATA[
+        	AND DATE_FORMAT(beginTime, '%Y-%m-%d') >=  DATE_FORMAT(#{param.beginTime}, '%Y-%m-%d')
+       ]]>  
+       </if>
+       <if test="param.endTime != null and param.endTime!='' ">
+        	  <![CDATA[
+          AND DATE_FORMAT(endTime, '%Y-%m-%d') <=  DATE_FORMAT(#{param.endTime}, '%Y-%m-%d')
+       ]]>
+       </if>
+       <if test="param.userclassesid!= null and param.userclassesid!=''">
+        	AND jy_base_account.loginName LIKE CONCAT('%',#{param.userclassesid},'%')
+       </if>
+       order by convert(jy_base_speedabout.speedorder,signed) desc,convert(jy_base_speedabout.createTime,signed) desc
+  </select>
+  
+  <select id="findauto" resultMap="base" parameterType="Basespeedabout">
+    SELECT t.name as speedwhere,
+       		  t.value as ids
+       		  FROM jy_data_dict_item t where dictId='f47440494cbe47d1bc580518e74d5cc0'
+    </select>
+   <select id="findCountByLoginName" resultType="int">
+       SELECT count(1)
+       		  FROM jy_base_speedabout t 
+       WHERE  t.speednumber=#{speednumber}
+ </select>
+  
+  <select id="count"  resultType="int" parameterType="Basespeedabout">
+       SELECT count(1) FROM jy_base_speedabout t  WHERE 1=1 
+  </select> 
+  
+  <select id="find" resultMap="base" parameterType="Basespeedabout">
+     select loginName,
+    jy_base_speedabout.ids, speednumber, speedstate, userid, speedorder, speedhomepage,speedcontent,speedtype,handspeedwhere,speedwhere,
+    jy_base_account.sex,speedmakesure,
+    name,picUrl,xingquaihao,zhiye,speedcity,nianling,shengao,tizhong,xingzuo,gexingqianming,coverurl,jy_base_userclasses.classesname,jy_base_account.screen,
+    DATE_FORMAT(jy_base_account.createTime,'%Y-%m-%d') as createTime,beginTime,endTime,speedpics,jy_base_account.userclassesid
+    from jy_base_speedabout  inner join jy_base_account  on jy_base_speedabout.userid=jy_base_account.id
+    inner join jy_base_userclasses on  jy_base_account.userclassesid=jy_base_userclasses.ids
+      WHERE 1=1 
+       <if test="ids != null and ids!=''">
+        	and jy_base_speedabout.ids=#{ids}
+       </if> 
+    </select>  
+    
+    <insert id="insert"  parameterType="Basespeedabout">	
+ 	<![CDATA[    
+    insert into jy_base_speedabout
+     (ids, speednumber, speedstate, userid, speedorder, speedhomepage, speedcontent,handspeedwhere,speedwhere,coverurl,beginTime,endTime,createTime,speedpics,speedcity)
+    values (#{ids}, #{speednumber}, #{speedstate}, #{userid}, #{speedorder}, #{speedhomepage}, 
+    #{speedcontent},#{handspeedwhere},#{speedwhere},#{coverurl},#{beginTime},#{endTime},#{createTime},#{speedpics},#{speedcity})
+	]]>  
+	</insert>
+	
+	<delete id="delete" parameterType="Basespeedabout" >
+    delete from jy_base_speedabout
+    where ids = #{ids}
+  </delete>
+  
+  <update id="update" parameterType="Basespeedabout" >
+    update jy_base_speedabout set
+      <if test="speednumber != null">
+        speednumber = #{speednumber},
+      </if>
+      <if test="speedstate != null">
+        speedstate = #{speedstate},
+      </if>
+      <if test="speedcity != null">
+        speedcity = #{speedcity},
+      </if>
+      <if test="speedorder != null">
+        speedorder = #{speedorder},
+      </if>
+      <if test="speedhomepage != null">
+        speedhomepage = #{speedhomepage},
+      </if>
+      <if test="speedcontent != null">
+        speedcontent = #{speedcontent},
+      </if>
+      <if test="handspeedwhere != null">
+        handspeedwhere = #{handspeedwhere},
+      </if>
+      <if test="speedwhere != null">
+        speedwhere = #{speedwhere},
+      </if>
+      <if test="coverurl != null">
+        coverurl = #{coverurl},
+      </if>
+       <if test="speedmakesure != null">
+        speedmakesure = #{speedmakesure},
+      </if>
+      <if test="userid != null">
+        userid = #{userid},
+      </if>
+      <if test="beginTime != null">
+        beginTime = #{beginTime},
+      </if>
+      <if test="endTime != null">
+        endTime = #{endTime},
+      </if>
+      <if test="speedpics != null">
+        speedpics = #{speedpics},
+      </if>
+      <if test="createTime != null">
+        createTime = #{createTime},
+      </if>
+      ids = #{ids}
+      
+    where ids = #{ids}
+  </update>
+ 
+</mapper>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.squareclasses.SquareDAO" >
+  <resultMap id="base" type="BaseSquare">
+    <result column="ids" property="ids" jdbcType="INTEGER" />
+  </resultMap>
+  
+ 
+  <select id="findByPage" resultMap="base" parameterType="BaseSquare" >
+    select 
+    t.ids, t.classesid, t.coverurl, orders, homepagerecommend, title, t.updatetime,
+    (select count(1) from jy_sys_comments where jy_sys_comments.newsId=t.ids) as commentcount
+    from jy_base_square t inner join jy_base_squareclasses s on t.classesid=s.ids
+    where 1=1
+    <if test="param.keyWord!= null and param.keyWord!= ''" >
+        	AND (
+        	t.title LIKE CONCAT('%',#{param.keyWord},'%')    
+        	)
+    </if>
+    <if test="param.classesname!= null and param.classesname!= ''">
+        	AND (
+        	s.classesname LIKE CONCAT('%',#{param.classesname},'%')    
+        	)
+    </if>
+    <if test="param.classesid!= null and param.classesid!= ''" >
+        	AND (
+        	t.classesid=#{param.classesid}    
+        	)
+    </if>
+     order by t.orders asc,t.updatetime desc
+  </select>
+  
+  
+  <select id="count"  resultType="int" parameterType="BaseSquare">
+       SELECT count(1) FROM jy_base_square t  WHERE 1=1 
+  </select> 
+  
+  <select id="find" resultMap="base" parameterType="BaseSquare">
+    select 
+    t.ids, classesid, classesname,t.coverurl, orders, homepagerecommend, title, t.updatetime,content,squarepics,jy_base_account.name
+    from jy_base_square t inner join jy_base_squareclasses s on t.classesid=s.ids
+    inner join jy_base_account  on t.userid=jy_base_account.id
+      WHERE 1=1 
+       <if test="ids != null and ids!=''">
+        	and t.ids=#{ids}
+       </if> 
+    </select>  
+  
+  
+   <select id="findCountByClassesname" resultType="int">
+       SELECT count(1)
+       		  FROM jy_base_square t 
+       WHERE  t.classesid=#{classesid}
+    </select> 
+    
+    
+    <insert id="insert"  parameterType="BaseSquare">	
+ 	<![CDATA[
+    insert into jy_base_square (classesid, coverurl, orders, homepagerecommend, title, updatetime, content,userid,squarepics) values 
+    (#{classesid}, #{coverurl}, #{orders}, #{homepagerecommend}, #{title}, #{updatetime}, #{content},#{userid},#{squarepics})
+	]]>  
+	</insert>
+	
+	<delete id="delete" parameterType="BaseSquare" >
+    delete from jy_base_square
+    where ids = #{ids}
+  </delete>
+  
+  <update id="update" parameterType="BaseSquare" >
+    update jy_base_square set 
+      <if test="coverurl != null">
+        coverurl = #{coverurl},
+      </if>
+      <if test="orders != null">
+        orders = #{orders},
+      </if>
+      <if test="homepagerecommend!=null" >
+        homepagerecommend = #{homepagerecommend},
+      </if>
+      <if test="title != null">
+        title = #{title},
+      </if>
+      <if test="updatetime != null">
+        updatetime = #{updatetime},
+      </if>
+      <if test="content != null">
+        content = #{content},
+      </if>
+      <if test="squarepics != null">
+        squarepics = #{squarepics},
+      </if>
+        classesid = #{classesid}
+    where ids = #{ids}#
+  </update>
+  
+</mapper>

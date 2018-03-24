@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.selfabout.SelfaboutDao">
+
+ <resultMap id="base" type="BaseSelfabout"></resultMap> 
+ 
+  <!--  防止密码外泄，取消密码列 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="BaseSelfabout">
+      SELECT  
+      a.loginName,
+      t.ids,
+      t.selfnumber, 
+      t.selfpicurl, 
+      SUBSTRING(t.content,1,30) as content,
+      t.isshow,
+      a.name,
+      t.createTime,
+      t.city,
+      t.handlookwhere,
+      t.lookwhere
+       		FROM jy_base_selfabout t inner join jy_base_account a on t.userid=a.id    
+       		where 1=1
+       <if test="param.content != null and param.content!='' ">			
+        	AND t.content LIKE CONCAT('%',#{param.content},'%')
+       </if>
+       <if test="param.city != null and param.city!='' ">			
+        	AND t.city LIKE CONCAT('%',#{param.city},'%')
+       </if>
+       <if test="param.isshow != null and param.isshow!='' ">			
+        	AND t.isshow=#{param.isshow}
+       </if>
+       <if test="param.beginTime != null and param.beginTime!=''  ">
+        	  <![CDATA[
+        	AND FROM_UNIXTIME(t.createTime/1000, '%Y-%m-%d') >=  DATE_FORMAT(#{param.beginTime}, '%Y-%m-%d')
+       ]]>  
+       </if>
+          <if test="param.endTime != null and param.endTime!='' ">
+        	  <![CDATA[
+          AND FROM_UNIXTIME(t.createTime/1000, '%Y-%m-%d') <=  DATE_FORMAT(#{param.endTime}, '%Y-%m-%d')
+       ]]>  
+       </if>
+        ORDER BY t.createTime desc
+    </select>  
+    
+     <!--  防止密码外泄，取消密码列 -->
+ 	<select id="find"  resultMap="base" parameterType="BaseSelfabout">
+      SELECT 
+      a.loginName, 
+      t.ids,
+      t.selfnumber, 
+      t.selfpicurl, 
+      t.content,
+      a.name,
+      t.isshow,
+      t.createTime,
+      t.city,
+       t.handlookwhere,
+      t.lookwhere
+       		FROM jy_base_selfabout t inner join jy_base_account a on t.userid=a.id  where 1=1
+       <if test="ids != null and ids!='' ">			
+        	AND t.ids=#{ids}
+       </if>
+    </select>  
+    
+  <delete id="delete" parameterType="BaseSelfabout">
+	delete from jy_base_selfabout  
+	WHERE ids=#{ids}
+	</delete>
+  
+  <insert id="insert" parameterType="BaseSelfabout">
+    insert into jy_base_selfabout (selfnumber, userid, selfpicurl, content,city,createTime) values (#{selfnumber}, #{userid}, #{selfpicurl}, #{content},#{city},#{createTime})
+  </insert>
+  
+  <update id="update" parameterType="BaseSelfabout">
+    update jy_base_selfabout set 
+      <if test="selfnumber != null">
+        selfnumber = #{selfnumber},
+      </if>
+      <if test="isshow != null">
+        isshow = #{isshow},
+      </if>
+      <if test="selfpicurl != null">
+        selfpicurl = #{selfpicurl},
+      </if>
+      <if test="content != null">
+        content = #{content},
+      </if>
+      <if test="city != null">
+        city = #{city},
+      </if>
+      ids = #{ids}
+    where ids = #{ids}
+  </update>
+  
+</mapper>

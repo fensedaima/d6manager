@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.squareclasses.SquareClassesDAO" >
+  <resultMap id="base" type="BaseSquareclasses">
+    <result column="ids" property="ids" jdbcType="INTEGER" />
+    <result column="classesname" property="classesname" jdbcType="VARCHAR" />
+    <result column="updatetime" jdbcType="VARCHAR" property="updatetime" />
+  </resultMap>
+  
+ 
+  <select id="findByPage" resultMap="base" parameterType="BaseSquareclasses" >
+    select 
+    ids, classesname, updatetime,coverurl,squareclassesorder,
+    (select count(1) from jy_base_square where classesid=t.ids) as keyWord
+    from jy_base_squareclasses t 
+    where 1=1
+    <if test="param.keyWord!= null and param.keyWord!=''">
+        	AND (
+        	t.classesname LIKE CONCAT('%',#{param.keyWord},'%')    
+        	)
+    </if>
+     order by squareclassesorder desc 
+  </select>
+  
+  
+   <select id="findauto" resultMap="base" parameterType="BaseSquareclasses">
+    select classesname,ids from jy_base_squareclasses t 
+  </select>
+  
+  
+  <select id="count"  resultType="int" parameterType="BaseSquareclasses">
+       SELECT count(1) FROM jy_base_squareclasses t  WHERE 1=1 
+  </select> 
+  
+  <select id="find" resultMap="base" parameterType="BaseSquareclasses">
+    select 
+    ids, classesname, updatetime,coverurl,squareclassesorder
+    from jy_base_squareclasses t 
+      WHERE 1=1 
+       <if test="ids != null and ids!=''">
+        	and t.ids=#{ids}
+       </if> 
+       order by ids desc
+    </select>  
+  
+   <select id="findCountByClassesname" resultType="int">
+       SELECT count(1)
+       		  FROM jy_base_squareclasses t 
+       WHERE  t.classesname=#{classesname}
+    </select> 
+    
+    <insert id="insert"  parameterType="BaseSquareclasses">	
+ 	<![CDATA[
+	insert into jy_base_squareclasses (classesname,updatetime,coverurl,squareclassesorder)
+    values (#{classesname},#{updatetime},#{coverurl},#{squareclassesorder})
+	]]>  
+	</insert>
+	
+	<delete id="delete" parameterType="BaseSquareclasses" >
+    delete from jy_base_squareclasses
+    where ids = #{ids}
+  </delete>
+  
+  <update id="update" parameterType="BaseSquareclasses" >
+    update jy_base_squareclasses
+    set classesname = #{classesname},updatetime=#{updatetime},coverurl=#{coverurl},squareclassesorder=#{squareclassesorder}
+    where ids = #{ids}
+  </update>
+  
+</mapper>

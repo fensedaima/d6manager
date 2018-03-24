@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.lookabout.LookaboutDAO" >
+  <resultMap id="base" type="BaseLookabout">
+    <result column="ids" property="ids" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <select id="findByPage" resultMap="base" parameterType="BaseLookabout" >
+    select 
+    ids,  lookstate, userid, lookorder, lookhomepage,looktype,userhandlookwhere,userlookwhere,loginName,
+    name,picUrl,xingquaihao,zhiye,city,nianling,shengao,tizhong,xingzuo,gexingqianming,coverurl,lookmakesure,lookpics
+    from jy_base_lookabout inner join jy_base_account  on jy_base_lookabout.userid=jy_base_account.id
+    where 1=1
+    <if test="param.lookstate!= null and param.lookstate!=''">
+        	AND lookstate=#{param.lookstate}
+    </if>
+    <if test="param.userclassesid!= null and param.userclassesid!=''">
+        	AND jy_base_account.loginName LIKE CONCAT('%',#{param.userclassesid},'%')
+    </if>
+    <if test="param.sex != null and param.sex!='' ">			
+        	AND (jy_base_account.sex !=#{param.sex} or jy_base_account.id=#{param.coverurl})
+    </if> 
+       order by convert(jy_base_lookabout.lookorder,signed) desc,convert(jy_base_lookabout.createTime,signed) desc
+  </select>
+  
+  <select id="findauto" resultMap="base" parameterType="BaseLookabout">
+    SELECT t.name as userlookwhere,
+       		  t.value as ids
+       		  FROM jy_data_dict_item t where dictId='f47440494cbe47d1bc580518e74d5cc0'
+    </select>
+  
+  
+  <select id="count"  resultType="int" parameterType="BaseLookabout">
+       SELECT count(1) FROM jy_base_lookabout t  WHERE 1=1 
+  </select> 
+  
+  <select id="find" resultMap="base" parameterType="BaseLookabout">
+     select loginName,duifangyaoqiu,
+    jy_base_lookabout.ids, lookstate, userid, lookorder, lookhomepage,looktype,userhandlookwhere,userlookwhere,jy_base_account.sex,lookmakesure,
+    name,picUrl,xingquaihao,zhiye,city,nianling,shengao,tizhong,xingzuo,gexingqianming,zuojia,coverurl,jy_base_userclasses.classesname,jy_base_account.screen,
+    DATE_FORMAT(jy_base_account.createTime,'%Y-%m-%d') as createTime,lookpics,jy_base_account.userclassesid
+    from jy_base_lookabout  inner join jy_base_account  on jy_base_lookabout.userid=jy_base_account.id
+    inner join jy_base_userclasses on  jy_base_account.userclassesid=jy_base_userclasses.ids
+      WHERE 1=1 
+       <if test="ids != null and ids!=''">
+        	and jy_base_lookabout.ids=#{ids}
+       </if> 
+    </select>  
+    
+    <insert id="insert"  parameterType="BaseLookabout">	
+ 	<![CDATA[    
+    insert into jy_base_lookabout
+     (ids, lookstate, userid, lookorder, lookhomepage,coverurl,createTime,lookpics)
+    values (#{ids}, #{lookstate}, #{userid}, #{lookorder}, #{lookhomepage},#{coverurl},#{createTime},#{lookpics})
+	]]>  
+	</insert>
+	
+	<delete id="delete" parameterType="BaseLookabout" >
+    delete from jy_base_lookabout
+    where ids = #{ids}
+  </delete>
+  
+  <update id="update" parameterType="BaseLookabout" >
+    update jy_base_lookabout set
+      <if test="lookstate != null">
+        lookstate = #{lookstate},
+      </if>
+      <if test="lookorder != null">
+        lookorder = #{lookorder},
+      </if>
+      <if test="lookhomepage != null">
+        lookhomepage = #{lookhomepage},
+      </if>
+      <if test="coverurl != null">
+        coverurl = #{coverurl},
+      </if>
+       <if test="lookmakesure != null">
+        lookmakesure = #{lookmakesure},
+      </if>
+      <if test="userid != null">
+        userid = #{userid},
+      </if>
+       <if test="lookpics != null">
+        lookpics = #{lookpics},
+      </if>
+       <if test="createTime != null">
+        createTime = #{createTime},
+      </if>
+      ids = #{ids}
+      
+    where ids = #{ids}
+  </update>
+ 
+</mapper>

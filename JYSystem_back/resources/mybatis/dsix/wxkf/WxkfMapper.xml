@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.wxkf.WxkfDao">
+    <resultMap id="base" type="Wxkf">
+    </resultMap> 
+    <!--  防止密码外泄，取消密码列 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="Wxkf">
+      SELECT t.ids,
+       		  t.kfName,
+       		  t.kfPic,  
+       		  t.description,
+       		  b.name createusername,
+       		  t.status,
+       		  t.createTime,
+       		  t.updateTime
+       		FROM jy_sys_wxkf t left join jy_base_account b on t.userid=b.id       WHERE 1=1 
+       <if test="param.kfName != null and param.kfName!='' ">			
+        	AND t.kfName LIKE CONCAT('%',#{param.kfName},'%')
+       </if>
+       <if test="param.beginTime!= null  and param.beginTime!=''">
+        	  <![CDATA[
+        	AND DATE_FORMAT(t.createTime, '%Y-%m-%d') >=  DATE_FORMAT(#{param.beginTime}, '%Y-%m-%d')
+       ]]>  
+       </if>
+          <if test="param.endTime!= null  and param.endTime!=''">
+        	  <![CDATA[
+          AND DATE_FORMAT(t.createTime, '%Y-%m-%d') <=  DATE_FORMAT(#{param.endTime}, '%Y-%m-%d')
+       ]]>  
+       </if>
+        ORDER BY t.createTime desc
+    </select>  
+    <select id="count"  resultType="int" parameterType="Wxkf">
+       SELECT count(1) FROM jy_sys_wxkf t  WHERE 1=1 
+    </select>        
+ 	<insert id="insert"  parameterType="Wxkf">	
+ 	<![CDATA[
+	INSERT INTO jy_sys_wxkf(
+	  kfName,
+       		 kfPic,
+       		  description,
+       		  userid,
+       		  status,
+       		  createTime,
+       		  updateTime
+	) VALUES (#{kfName},#{kfPic},#{description},#{userid},#{status},
+	#{createTime},#{updateTime}
+	)
+	]]>  
+	</insert>
+	<delete id="deleteWxkf" parameterType="String">
+	delete from jy_sys_wxkf  
+	WHERE ids=#{KfId}
+	</delete>
+	
+	<update id="update" parameterType="Wxkf">
+		UPDATE jy_sys_wxkf t
+		SET kfName =#{kfName},
+			kfPic =#{kfPic},
+			t.description =#{description},
+			userid =#{userid},
+			status =#{status},
+			updateTime =#{updateTime}
+		WHERE ids=#{ids}
+	</update>
+   
+     <select id="find" resultMap="base" parameterType="Wxkf">
+     SELECT t.ids,
+		   	  t.kfName,
+       		  t.kfPic,
+       		  t.description,
+       		  t.userid,   	
+       		  t.status,	  
+       		  t.createTime,
+       		  t.updateTime
+       		  FROM jy_sys_wxkf t 
+      WHERE 1=1 
+       <if test="ids!= null ">
+        	and t.ids=#{ids}
+       </if> 
+    </select>  
+
+	<select id="getWxkfData" resultMap="base" parameterType="String" >
+		   SELECT t.ids,
+		   	  t.kfName,
+       		  t.kfPic,
+       		  t.description,
+       		  t.createUser,   		  
+       		  t.createTime,
+       		  t.updateTime
+       		  FROM jy_sys_wxkf t 
+       	   WHERE t.ids=#{KfId} 
+	</select>
+
+</mapper>

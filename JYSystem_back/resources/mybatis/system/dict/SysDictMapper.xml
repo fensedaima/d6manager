@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.system.dict.SysDictDao">
+	<!-- com.jy.entity.system.dict.SysDict  -->
+ 	<resultMap id="base" type="SysDict" ></resultMap>
+ 	<select id="find"  resultMap="base" parameterType="SysDict">
+       SELECT t.* FROM JY_SYS_DICT t WHERE 1=1 
+       <if test="id != null and id!='' ">
+        	AND t.id=#{id}
+       </if>
+       <if test="paramKey != null and paramKey!='' ">
+        	AND t.paramKey=#{paramKey}
+       </if>
+    </select> 
+ 	<select id="findByPage"  resultMap="base" parameterType="SysDict">
+       SELECT t.* FROM JY_SYS_DICT t WHERE 1=1 
+        <if test="param.id!= null and param.id!='' ">
+        	AND t.id=#{param.id}
+       </if>
+       <if test="param.paramKey!= null and param.paramKey!=''">
+        	AND t.paramKey=#{param.paramKey}
+       </if>
+       <if test="param.paramName!= null and param.paramName!=''">
+        	AND (
+        	t.paramName LIKE CONCAT('%',#{param.paramName},'%')
+        	)
+       </if>
+       order by t.paramKey asc,t.lookorder asc
+    </select>  
+    <select id="count"  resultType="int" parameterType="SysDict">
+       SELECT count(1) FROM jy_sys_dict t WHERE 1=1 
+    </select>  
+          
+ 	<insert id="insert"  parameterType="SysDict">	
+ 	<![CDATA[
+	INSERT INTO JY_SYS_DICT(
+	id,
+	paramKey,
+	paramName,
+	isValid,
+	description,
+	createTime,
+	lookorder
+	) VALUES (
+	#{id},
+	#{paramKey},
+	#{paramName},
+	#{isValid},
+	#{description},
+	#{createTime},
+	#{lookorder}
+	)
+	]]>  
+	</insert>
+	<delete id="delete" parameterType="SysDict">
+	DELETE FROM JY_SYS_DICT  WHERE 1=1 
+	AND id=#{id} 
+	</delete>
+	<delete id="deleteBatch" parameterType="java.util.List">
+	DELETE FROM JY_SYS_DICT 
+	WHERE id IN(
+		<foreach item="o" collection="list" open="" separator="," close="" >
+			#{o.id}
+		</foreach>
+		)
+	</delete>
+	<update id="update" parameterType="SysDict">
+		UPDATE JY_SYS_DICT 
+		SET 
+			<!-- paramKey  =#{paramKey} , -->
+			paramName =#{paramName},
+			description =#{description},
+			isValid=#{isValid},
+			updateTime =#{updateTime},
+			lookorder=#{lookorder}
+		WHERE 
+			id=#{id};
+		<if test="paramName!= null and paramName!=''">
+		<if test="paramKey!= null and paramKey==0">
+        	update jy_base_account set userlookwhere=REPLACE(userlookwhere, #{oldparamName}, #{paramName}) where userlookwhere is not null;
+        	update jy_base_selfabout set lookwhere=REPLACE(lookwhere, #{oldparamName}, #{paramName}) where lookwhere is not null;
+        	update jy_base_speedabout set speedwhere=REPLACE(speedwhere, #{oldparamName}, #{paramName}) where speedwhere is not null
+		</if>
+		<if test="paramKey!= null and paramKey==1">
+        	update jy_base_account set userhandlookwhere=REPLACE(userhandlookwhere, #{oldparamName}, #{paramName}) where userhandlookwhere is not null;
+        	update jy_base_selfabout set handlookwhere=REPLACE(handlookwhere, #{oldparamName}, #{paramName}) where handlookwhere is not null;
+        	update jy_base_speedabout set handspeedwhere=REPLACE(handspeedwhere, #{oldparamName}, #{paramName}) where handspeedwhere is not null
+		</if>
+       </if>	
+	</update>	
+	
+     <select id="countaccount"  resultType="int" parameterType="SysDict">
+       SELECT count(1) FROM jy_base_account t WHERE userlookwhere like CONCAT('%',#{paramName},'%') or userhandlookwhere like CONCAT('%',#{paramName},'%') 
+    </select>  
+    
+     <select id="countselfabout"  resultType="int" parameterType="SysDict">
+       SELECT count(1) FROM jy_base_selfabout t WHERE lookwhere like CONCAT('%',#{paramName},'%') or handlookwhere like CONCAT('%',#{paramName},'%') 
+    </select>  
+    
+     <select id="countspeedabout"  resultType="int" parameterType="SysDict">
+       SELECT count(1) FROM jy_base_speedabout t WHERE speedwhere like CONCAT('%',#{paramName},'%') or handspeedwhere like CONCAT('%',#{paramName},'%')
+    </select>  
+    
+</mapper>

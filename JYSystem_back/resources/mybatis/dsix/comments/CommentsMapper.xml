@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.comments.CommentsDao">
+    <resultMap id="base" type="Comments">
+    </resultMap> 
+    <!--  防止密码外泄，取消密码列 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="Comments">
+      SELECT  t.ids,
+       		  t.userid,
+       		  a.name memberName,  
+       		  t.newsId,
+       		  t.content,
+       		  isShow,
+       		  t.createTime,
+       		  TRIM(jy_base_square.title) as title
+       		FROM jy_sys_comments t inner join jy_base_account a on t.userid=a.id    
+       		inner join jy_base_square on t.newsId=jy_base_square.ids  WHERE 1=1 
+       <if test="param.content != null and param.content!='' ">			
+        	AND t.content LIKE CONCAT('%',#{param.content},'%')
+       </if>
+       <if test="param.beginTime != null and param.beginTime!=''  ">
+        	  <![CDATA[
+        	AND FROM_UNIXTIME(t.createTime/1000, '%Y-%m-%d') >=  DATE_FORMAT(#{param.beginTime}, '%Y-%m-%d')
+       ]]>  
+       </if>
+          <if test="param.endTime != null and param.endTime!='' ">
+        	  <![CDATA[
+          AND FROM_UNIXTIME(t.createTime/1000, '%Y-%m-%d') <=  DATE_FORMAT(#{param.endTime}, '%Y-%m-%d')
+       ]]>  
+       </if>
+        <if test="param.newsId != null and param.newsId!='' ">			
+        	AND t.newsId =#{param.newsId}
+       </if>
+        ORDER BY t.createTime desc
+    </select>  
+    <select id="count"  resultType="int" parameterType="Comments">
+       SELECT count(1) FROM jy_sys_comments t  WHERE 1=1 
+    </select>        
+ 	<insert id="insert"  parameterType="Comments">	
+ 	<![CDATA[
+	INSERT INTO jy_sys_comments(
+	  userid,
+       		  newsId,
+       		  content,
+       		  createTime
+	) VALUES (#{userid},#{newsId},#{content},#{createTime}
+	)
+	]]>  
+	</insert>
+	<delete id="delete" parameterType="Comments">
+	delete from jy_sys_comments  
+	WHERE ids=#{ids}
+	</delete>
+	
+	 <update id="update" parameterType="Comments">
+		UPDATE jy_sys_comments SET   
+	  <if test="content != null">
+        content = #{content},
+      </if>
+      <if test="isShow != null">
+        isShow = #{isShow},
+      </if>
+		ids=#{ids}
+		WHERE ids=#{ids}
+	</update>
+	
+	 <select id="find" resultMap="base" parameterType="Comments">
+     SELECT  t.ids,t.userid,
+       		  t.newsId,
+       		  a.name memberName, 
+       		  t.content,
+       		  isShow,
+       		  t.createTime
+       		  FROM jy_sys_comments t  inner join jy_base_account a on t.userid=a.id
+      WHERE 1=1 
+       <if test="ids!= null and ids!=''">
+        	and t.ids=#{ids}
+       </if> 
+    </select>  
+    
+    <select id="findCountByClassesname" resultType="int">
+       SELECT count(1)
+       		  FROM jy_sys_comments t 
+       WHERE  t.newsId=#{newsId}
+    </select> 
+</mapper>

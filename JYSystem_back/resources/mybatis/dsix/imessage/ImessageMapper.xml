@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.imessage.ImessageDao">
+    <resultMap id="base" type="Imessage">
+    </resultMap> 
+    <!--  防止密码外泄，取消密码列 -->
+ 	<select id="findByPage"  resultMap="base" parameterType="Imessage">
+      SELECT  t.ids,
+       		  t.title,
+       		  t.content,  
+       		  t.lookwhere,
+       		  t.handlookwhere,
+       		  t.sex,
+       		  jy_base_account.name as userid,
+       		  classesid,
+       		  t.createTime
+       		FROM jy_sys_Imessage  t  inner join jy_base_account on t.userid=jy_base_account.id     WHERE 1=1 
+       <if test="param.title != null and param.title!='' ">			
+        	AND t.title LIKE CONCAT('%',#{param.title},'%')
+       </if>
+       
+       <if test="param.beginTime != null and param.beginTime!=''  ">
+        	  <![CDATA[
+        	AND FROM_UNIXTIME(t.createTime/1000, '%Y-%m-%d') >=  DATE_FORMAT(#{param.beginTime}, '%Y-%m-%d')
+       ]]>  
+       </if>
+          <if test="param.endTime != null and param.endTime!='' ">
+        	  <![CDATA[
+          AND FROM_UNIXTIME(t.createTime/1000, '%Y-%m-%d') <=  DATE_FORMAT(#{param.endTime}, '%Y-%m-%d')
+       ]]>  
+       </if>
+        ORDER BY t.createTime desc
+    </select>  
+    <select id="count"  resultType="int" parameterType="Imessage">
+       SELECT count(1) FROM jy_sys_Imessage t  WHERE 1=1 
+    </select>
+    
+    <insert id="insert"  parameterType="Imessage" useGeneratedKeys="true" keyProperty="ids"  keyColumn="ids">	
+	INSERT INTO jy_sys_Imessage(title,content, userid,lookwhere,handlookwhere,classesid,createTime,sex) VALUES (#{title},#{content},#{userid},#{lookwhere},#{handlookwhere},#{classesid},#{createTime},#{sex})
+	 <selectKey keyProperty="ids" resultType="int" order="AFTER">
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+	</insert>    
+ 
+ 	<delete id="delete" parameterType="Imessage">
+		delete from jy_sys_Imessage WHERE ids=#{ids}
+	</delete>
+	
+	 <select id="find" resultMap="base" parameterType="Imessage">
+  SELECT  t.ids,title,
+       		  content,  
+       		  a.name userid,
+       		  lookwhere,
+       		  t.handlookwhere,
+       		  classesid,
+       		  t.sex,
+       		  t.createTime
+       		  FROM jy_sys_Imessage t  inner join jy_base_account a on t.userid=a.id
+      WHERE 1=1 
+       <if test="ids!= null and ids!=''">
+        	and t.ids=#{ids}
+       </if> 
+    </select>  
+</mapper>

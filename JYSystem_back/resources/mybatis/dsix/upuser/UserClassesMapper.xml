@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jy.repository.dsix.userclasses.UserClassesDAO" >
+  <resultMap id="base" type="BaseUserclasses">
+    <result column="ids" property="ids" jdbcType="INTEGER" />
+    <result column="classesname" property="classesname" jdbcType="VARCHAR" />
+    <result column="updatetime" jdbcType="VARCHAR" property="updatetime" />
+  </resultMap>
+  
+ 
+  <select id="findByPage" resultMap="base" parameterType="BaseUserclasses" >
+    select 
+    ids, classesname, updatetime,describes,flag,sex,talkcount
+    from jy_base_userclasses t
+    where 1=1 
+    <if test="param.keyWord!= null and param.keyWord!=''">
+        	AND (
+        	t.classesname LIKE CONCAT('%',#{param.keyWord},'%')    
+        	)
+    </if>
+    order by userclassesorder desc 
+  </select>
+  
+  
+   <select id="findauto" resultMap="base" parameterType="BaseUserclasses">
+    select classesname,ids from jy_base_userclasses t where ids=7 or (flag=1 
+    <if test="sex!= null and sex!=''">
+        	AND sex=#{sex}
+    </if> 
+    )
+  </select>
+  
+  
+  <select id="count"  resultType="int" parameterType="BaseUserclasses">
+       SELECT count(1) FROM jy_base_userclasses t  WHERE 1=1 
+  </select> 
+  
+  <select id="find" resultMap="base" parameterType="BaseUserclasses">
+    select 
+    ids, classesname, updatetime,describes,flag,sex,talkcount,userclassesorder
+    from jy_base_userclasses t
+      WHERE 1=1 
+       <if test="ids != null and ids!=''">
+        	and t.ids=#{ids}
+       </if> 
+    </select>  
+  
+  
+   <select id="findCountByClassesname" resultType="int">
+       SELECT count(1)
+       		  FROM jy_base_userclasses t 
+       WHERE  t.classesname=#{classesname}
+    </select> 
+    
+    
+    <insert id="insert"  parameterType="BaseUserclasses">	
+ 	<![CDATA[
+	insert into jy_base_userclasses (classesname,updatetime,describes,sex,talkcount,userclassesorder)
+    values (#{classesname},#{updatetime},#{describes},#{sex},#{talkcount},#{userclassesorder})
+	]]>  
+	</insert>
+	
+	<delete id="delete" parameterType="BaseUserclasses" >
+    delete from jy_base_userclasses
+    where ids = #{ids}
+  </delete>
+  
+  <update id="update" parameterType="BaseUserclasses" >
+    update jy_base_userclasses
+    set classesname = #{classesname},updatetime=#{updatetime},describes=#{describes},flag=#{flag},sex=#{sex},talkcount=#{talkcount},userclassesorder=#{userclassesorder}
+    where ids = #{ids}
+  </update>
+  
+</mapper>
